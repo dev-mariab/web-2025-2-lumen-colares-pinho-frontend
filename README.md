@@ -31,8 +31,8 @@ npm install
 npm run dev
 
 4. Acesse no navegador:
-http://local
+http://localhost:5173
 
 ## Status
 Em desenvolvimento (MVP sendo construído)
-host:5173
+
