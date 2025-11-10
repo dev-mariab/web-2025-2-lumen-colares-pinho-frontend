@@ -34,7 +34,9 @@ export default function Login() {
   return (
     <div className="page-center">
       <div className="card-panel auth">
-        <Logo size={85} />
+
+        <Logo size={125} />
+
         <p className="muted">Conecte-se com pessoas parecidas com você.</p>
 
         <form onSubmit={handleSubmit} className="form">
@@ -42,7 +44,7 @@ export default function Login() {
           <input
             type="email"
             name="email"
-            placeholder="ex: aluno@ufc.br"
+            placeholder="ex: voce@email.com"
             value={form.email}
             onChange={handleChange}
           />
@@ -62,8 +64,7 @@ export default function Login() {
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
-        
-        <footer className="footer-copy">© 2025 Lumen — Todos os direitos reservados.</footer>
+        <div className="footer-copy">© 2025 Lumen - Todos os direitos reservados</div>
       </div>
     </div>
   );
