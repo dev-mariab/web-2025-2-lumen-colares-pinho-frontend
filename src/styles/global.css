@@ -202,6 +202,7 @@ html, body {
   font-weight: 600;
   cursor: pointer;
   transition: 0.25s;
+  margin-right: 35px;
 }
 .nav-logout:hover { transform: scale(1.05); }
 
