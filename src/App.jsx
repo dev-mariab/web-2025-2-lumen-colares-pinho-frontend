@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import UserProfile from "./pages/UserProfile";
 import Dashboard from "./pages/Dashboard";
 import NavBar from "./components/NavBar";
+import Bus from "./pages/Bus";
 
 export default function App() {
   const location = useLocation();
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/post/:id" element={<PostDetails />} />
         <Route path="/user/:id" element={<UserProfile />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/bus" element={<Bus />} />
       </Routes>
     </>
   );

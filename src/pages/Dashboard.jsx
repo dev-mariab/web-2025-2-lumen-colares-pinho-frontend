@@ -38,7 +38,7 @@ export default function Dashboard() {
         </div>
 
         {/* Ações */}
-        <div classname="dash-card">
+        <div className="dash-card">
           <h3>Ações Rápidas</h3>
           <button className="btn" onClick={() => navigate("/feed")}>
             Criar Nova Publicação

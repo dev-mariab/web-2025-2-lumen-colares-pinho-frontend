@@ -1,48 +1,61 @@
+// src/pages/UserProfile.jsx
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getUserById } from "../api/feedService";
-import "../styles/Profile.css";
 
 export default function UserProfile() {
   const { id } = useParams();
-  const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    getUserById(id).then(setUser);
+    async function loadUser() {
+      try {
+        const data = await getUserById(Number(id));
+        setUser(data);
+      } catch (err) {
+        setError("Erro ao carregar perfil.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadUser();
   }, [id]);
 
-  if (!user) return <p>Carregando...</p>;
+  if (loading) {
+    return <p className="muted">Carregando perfil...</p>;
+  }
 
-  const interests = ["UI/UX", "Acessibilidade", "Frontend"];
+  if (error) {
+    return <p className="error">{error}</p>;
+  }
+
+  if (!user) {
+    return <p className="muted">Usuário não encontrado.</p>;
+  }
 
   return (
-    <div className="profile-page">
-      <button className="back-btn" onClick={() => navigate(-1)}>← Voltar</button>
+    <div className="profile">
+      <img src={user.avatar} alt={user.nome} />
+      <h2>{user.nome}</h2>
+      <p>
+        {user.idade} anos • {user.cidade}
+      </p>
+      <p>{user.bio}</p>
 
-      <div className="profile-card">
-        <div className="profile-left">
-          <div className="avatar">{user.name[0]}</div>
-          <div>
-            <h3>{user.name}</h3>
-            <p>Ciência da Computação - 6º</p>
-            <p><strong>Bio</strong><br/>Testando novos conhecimentos em Web. Buscando alguém para projeto de extensão.</p>
-          </div>
-        </div>
-
-        <div className="profile-right">
-          <h4>Interesses</h4>
-          <div className="tags">
-            {interests.map(i => (
-              <span key={i} className="tag">{i}</span>
-            ))}
-          </div>
-
-          <div className="profile-actions">
-            <button className="btn-edit">Editar Perfil</button>
-            <button className="btn-message">Enviar Mensagem</button>
-          </div>
-        </div>
+      <div className="profile-meta">
+        <p>
+          <strong>Empresa:</strong> {user.empresa}
+        </p>
+        <p>
+          <strong>Seguidores:</strong> {user.seguidores}
+        </p>
+        <p>
+          <strong>Seguindo:</strong> {user.seguindo}
+        </p>
       </div>
     </div>
   );
