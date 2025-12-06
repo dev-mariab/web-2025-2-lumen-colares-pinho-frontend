@@ -21,6 +21,7 @@ Lumen é uma rede social moderna, com foco em feed de notícias, perfil de usuá
 - `/src/data/noticias.js` – Dados simulados de notícias (para testes)  
 
 ## ⚡ Como rodar o projeto
+No terminal:
 
 1. Clonar o repositório:
 ```bash
