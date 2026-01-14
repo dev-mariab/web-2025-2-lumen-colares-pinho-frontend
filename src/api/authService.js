@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export async function login({ email, senha }) {
-  const res = await fetch(`${API_URL}/auth/login`, {
+  const res = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

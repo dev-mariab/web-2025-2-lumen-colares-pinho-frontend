@@ -1,6 +1,6 @@
 // src/components/SideMenu.jsx
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // Função para checar se a notícia expirou
 function isExpired(dateString) {
@@ -13,20 +13,20 @@ export default function SideMenu({ open, onClose }) {
   const navigate = useNavigate();
 
   // Exemplo de notícias (em produção, busque da API)
-  const [noticias, setNoticias] = useState([
+  const [noticias] = useState([
     { id: 1, titulo: "Nova linha de ônibus", validade: "2025-12-10" },
     { id: 2, titulo: "Promoção bilhete único", validade: "2025-12-04" },
     { id: 3, titulo: "Aviso manutenção", validade: "2025-12-05" },
   ]);
 
   // Separa notícias em ativas e expiradas
-  const noticiasAtivas = noticias.filter(n => !isExpired(n.validade));
-  const noticiasExpiradas = noticias.filter(n => isExpired(n.validade));
+  const noticiasAtivas = noticias.filter((n) => !isExpired(n.validade));
+  const noticiasExpiradas = noticias.filter((n) => isExpired(n.validade));
 
   if (!open) return null;
 
   function goTo(path) {
-    onClose();      // fecha o menu
+    onClose(); // fecha o menu
     navigate(path); // navega para a rota
   }
 
@@ -46,10 +46,7 @@ export default function SideMenu({ open, onClose }) {
 
         <nav className="side-nav">
           {/* Ônibus */}
-          <button
-            className="side-item"
-            onClick={() => goTo("/bus")}
-          >
+          <button className="side-item" onClick={() => goTo("/bus")}>
             Horários dos Ônibus
           </button>
 
@@ -61,7 +58,7 @@ export default function SideMenu({ open, onClose }) {
               <span className="side-muted">Sem notícias ativas</span>
             )}
 
-            {noticiasAtivas.map(noticia => (
+            {noticiasAtivas.map((noticia) => (
               <button
                 key={noticia.id}
                 className="side-item"
@@ -80,7 +77,7 @@ export default function SideMenu({ open, onClose }) {
               <span className="side-muted">Nenhuma notícia expirada</span>
             )}
 
-            {noticiasExpiradas.map(noticia => (
+            {noticiasExpiradas.map((noticia) => (
               <div key={noticia.id} className="side-item expired-item">
                 {noticia.titulo}
               </div>

@@ -6,7 +6,7 @@ import { login } from "../api/authService";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "", senha: "" });
 
   //Estado de mensagens e controle
   const [errors, setErrors] = useState({});
@@ -27,13 +27,13 @@ export default function Login() {
       }
     }
 
-    if (name === "password") {
+    if (name === "senha") {
       if (!value.trim()) {
-        newErrors.password = "Senha é obrigatória.";
+        newErrors.senha = "Senha é obrigatória.";
       } else if (value.length < 4) {
-        newErrors.password = "Senha deve ter pelo menos 4 caracteres.";
+        newErrors.senha = "Senha deve ter pelo menos 4 caracteres.";
       } else {
-        delete newErrors.password;
+        delete newErrors.senha;
       }
     }
 
@@ -50,11 +50,11 @@ export default function Login() {
   }
 
   //Aqui você conectaremos a API quando quisermos
-  async function loginMock({ email, password }) {
+  async function loginMock({ email, senha }) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // Aceita qualquer credencial válida (não bloqueia por email fixo)
-        if (email && password) resolve();
+        if (email && senha) resolve();
         else reject();
       }, 1000);
     });
@@ -69,10 +69,10 @@ export default function Login() {
       newErrors.email = "Digite um e-mail válido.";
     }
 
-    if (!form.password.trim()) {
-      newErrors.password = "Senha é obrigatória.";
-    } else if (form.password.length < 4) {
-      newErrors.password = "Senha deve ter pelo menos 4 caracteres.";
+    if (!form.senha.trim()) {
+      newErrors.senha = "Senha é obrigatória.";
+    } else if (form.senha.length < 4) {
+      newErrors.senha = "Senha deve ter pelo menos 4 caracteres.";
     }
 
     setErrors(newErrors);
@@ -124,12 +124,12 @@ export default function Login() {
           <label>Senha</label>
           <input
             type="password"
-            name="password"
+            name="senha"
             placeholder="mínimo 4 caracteres"
-            value={form.password}
+            value={form.senha}
             onChange={handleChange}
           />
-          {errors.password && <div className="error">{errors.password}</div>}
+          {errors.senha && <div className="error">{errors.senha}</div>}
 
           {/*Erro geral ao tentar login*/}
           {errors.general && <div className="error">{errors.general}</div>}

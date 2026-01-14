@@ -46,7 +46,7 @@ const Comentarios = ({ postId }) => {
 
   return (
     <div style={styles.container}>
-      <h3 style={styles.titulo}>💬 Comentários ({comentarios.length})</h3>
+      <h3 style={styles.titulo}>Comentários ({comentarios.length})</h3>
 
       <form onSubmit={handleSubmit} style={styles.form}>
         <textarea
@@ -89,9 +89,9 @@ const Comentarios = ({ postId }) => {
               <p style={styles.conteudo}>{comentario.conteudo}</p>
               <div style={styles.acoes}>
                 <button style={styles.botaoAcao}>
-                  ❤️ Curtir ({comentario.curtidas || 0})
+                  Curtir ({comentario.curtidas || 0})
                 </button>
-                <button style={styles.botaoAcao}>↩️ Responder</button>
+                <button style={styles.botaoAcao}>↩Responder</button>
               </div>
             </div>
           ))

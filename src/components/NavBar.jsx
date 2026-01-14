@@ -24,23 +24,19 @@ const NavBar = () => {
       <div style={styles.navContainer}>
         <div style={styles.logoContainer}>
           <Link to="/feed" style={styles.logo}>
-            Lumen Colares
+            Lumen
           </Link>
-          <span style={styles.tagline}>Artesanato & Conexões</span>
         </div>
 
         <div style={styles.navLinks}>
           <Link to="/feed" style={styles.navLink}>
-            📝 Feed
+            Feed
           </Link>
           <Link to="/noticias" style={styles.navLink}>
-            📰 Notícias
+            Notícias
           </Link>
           <Link to="/bus" style={styles.navLink}>
-            🚌 Ônibus
-          </Link>
-          <Link to="/solicitacoes" style={styles.navLink}>
-            🔄 Solicitações
+            Ônibus
           </Link>
         </div>
 
@@ -66,7 +62,7 @@ const NavBar = () => {
             </>
           ) : (
             <Link to="/" style={styles.loginBtn}>
-              🔐 Entrar
+              Entrar
             </Link>
           )}
         </div>

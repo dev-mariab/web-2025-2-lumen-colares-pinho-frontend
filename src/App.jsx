@@ -8,7 +8,6 @@ import Dashboard from "./pages/Dashboard";
 import NavBar from "./components/NavBar";
 import Bus from "./pages/Bus";
 import Noticias from "./pages/Noticias";
-import Solicitacoes from "./pages/Solicitacoes";
 
 export default function App() {
   const location = useLocation();
@@ -29,7 +28,6 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/bus" element={<Bus />} />
         <Route path="/noticias" element={<Noticias />} />
-        <Route path="/solicitacoes" element={<Solicitacoes />} />
       </Routes>
     </>
   );

@@ -71,7 +71,7 @@ const Noticias = () => {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h1 style={styles.titulo}>📰 Notícias & Informações</h1>
+        <h1 style={styles.titulo}>Notícias & Informações</h1>
         <p style={styles.subtitulo}>
           Fique por dentro das novidades e serviços
         </p>
