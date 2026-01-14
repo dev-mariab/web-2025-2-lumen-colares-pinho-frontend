@@ -1,48 +1,133 @@
-// src/api/feedService.js
+const API_URL = "http://localhost:3001/api";
 
-const API_URL = "https://jsonplaceholder.typicode.com";
-
-// util simples pra gerar números mock
-function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-export async function getUsers() {
-  const res = await fetch(`${API_URL}/users`);
-  const users = await res.json();
-
-  return users.map((user) => ({
-    id: user.id,
-    nome: user.name,
-    idade: randomInt(18, 35),
-    cidade: `${user.address.city}`,
-    bio: "Explorando conexões reais ✨",
-    avatar: `https://i.pravatar.cc/300?img=${user.id + 10}`,
-    empresa: user.company.name,
-    seguidores: randomInt(50, 1200),
-    seguindo: randomInt(30, 600),
-  }));
-}
-
-export async function getUserById(id) {
-  const res = await fetch(`${API_URL}/users/${id}`);
-
-  if (!res.ok) {
-    throw new Error("Usuário não encontrado");
+export async function getPosts() {
+  try {
+    const res = await fetch(`${API_URL}/posts`);
+    if (!res.ok) throw new Error("Erro ao buscar posts");
+    
+    const data = await res.json();
+    return data.dados?.map(post => ({
+      id: post.id,
+      title: post.title,
+      body: post.body,
+      user: post.user,
+      price: post.price,
+      images: post.images || [],
+      createdAt: post.createdAt,
+      likes: post.likes || 0,
+      comments: post.comments || 0
+    })) || [];
+  } catch (error) {
+    console.error("Erro em getPosts:", error);
+    return [];
   }
+}
 
-  const user = await res.json();
+export async function getPostById(id) {
+  try {
+    const res = await fetch(`${API_URL}/posts/${id}`);
+    if (!res.ok) throw new Error("Post não encontrado");
+    
+    const data = await res.json();
+    return data.dados;
+  } catch (error) {
+    console.error("Erro em getPostById:", error);
+    return null;
+  }
+}
 
-  return {
-    id: user.id,
-    nome: user.name,
-    idade: randomInt(18, 35),
-    cidade: `${user.address.city}`,
-    bio:
-      "Gosto de tecnologia, boas conversas e conhecer pessoas interessantes.",
-    avatar: `https://i.pravatar.cc/300?img=${user.id + 10}`,
-    empresa: user.company.name,
-    seguidores: randomInt(100, 2000),
-    seguindo: randomInt(80, 900),
-  };
+export async function createPost(postData, imagens = []) {
+  try {
+    const token = localStorage.getItem("token");
+    
+    if (imagens.length > 0) {
+      const formData = new FormData();
+      formData.append("title", postData.title || "");
+      formData.append("body", postData.body || "");
+      formData.append("user", postData.user || "Anônimo");
+      formData.append("price", postData.price || 0);
+      
+      imagens.forEach((imagem) => {
+        formData.append("imagens", imagem);
+      });
+      
+      const res = await fetch(`${API_URL}/posts`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      
+      if (!res.ok) throw new Error("Erro ao criar post");
+      return await res.json();
+    } else {
+      const res = await fetch(`${API_URL}/posts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(postData),
+      });
+      
+      if (!res.ok) throw new Error("Erro ao criar post");
+      return await res.json();
+    }
+  } catch (error) {
+    console.error("Erro em createPost:", error);
+    throw error;
+  }
+}
+
+export async function getNoticias() {
+  try {
+    const res = await fetch(`${API_URL}/noticias`);
+    if (!res.ok) throw new Error("Erro ao buscar notícias");
+    
+    const data = await res.json();
+    return data.dados || [];
+  } catch (error) {
+    console.error("Erro em getNoticias:", error);
+    return [];
+  }
+}
+
+export async function getNoticiaById(id) {
+  try {
+    const res = await fetch(`${API_URL}/noticias/${id}`);
+    if (!res.ok) throw new Error("Notícia não encontrada");
+    
+    const data = await res.json();
+    return data.dados;
+  } catch (error) {
+    console.error("Erro em getNoticiaById:", error);
+    return null;
+  }
+}
+
+export async function getHorariosOnibus() {
+  try {
+    const res = await fetch(`${API_URL}/noticias/onibus/horarios`);
+    if (!res.ok) throw new Error("Erro ao buscar horários");
+    
+    const data = await res.json();
+    return data.dados;
+  } catch (error) {
+    console.error("Erro em getHorariosOnibus:", error);
+    return null;
+  }
+}
+
+export async function getOnibusPorTipo(tipo) {
+  try {
+    const res = await fetch(`${API_URL}/onibus/${tipo}`);
+    if (!res.ok) throw new Error(`Erro ao buscar ônibus ${tipo}`);
+    
+    const data = await res.json();
+    return data.dados;
+  } catch (error) {
+    console.error(`Erro em getOnibusPorTipo(${tipo}):`, error);
+    return [];
+  }
 }

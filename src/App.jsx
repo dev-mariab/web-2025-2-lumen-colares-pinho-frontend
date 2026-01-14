@@ -7,12 +7,14 @@ import UserProfile from "./pages/UserProfile";
 import Dashboard from "./pages/Dashboard";
 import NavBar from "./components/NavBar";
 import Bus from "./pages/Bus";
+import Noticias from "./pages/Noticias";
+import Solicitacoes from "./pages/Solicitacoes";
 
 export default function App() {
   const location = useLocation();
 
-  // rotas onde o navbar NÃO deve aparecer
-  const hideNavbar = location.pathname === "/" || location.pathname === "/registrar";
+  const hideNavbar =
+    location.pathname === "/" || location.pathname === "/registrar";
 
   return (
     <>
@@ -26,6 +28,8 @@ export default function App() {
         <Route path="/user/:id" element={<UserProfile />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/bus" element={<Bus />} />
+        <Route path="/noticias" element={<Noticias />} />
+        <Route path="/solicitacoes" element={<Solicitacoes />} />
       </Routes>
     </>
   );

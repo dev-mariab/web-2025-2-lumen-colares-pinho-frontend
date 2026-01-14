@@ -15,6 +15,7 @@ export default function UserProfile() {
       try {
         const data = await getUserById(Number(id));
         setUser(data);
+        // eslint-disable-next-line no-unused-vars
       } catch (err) {
         setError("Erro ao carregar perfil.");
       } finally {
