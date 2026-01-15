@@ -48,3 +48,8 @@ Aplicação React para rede social universitária.
 Interface com feed de posts, sistema de comentários, upload de imagens e fluxo completo de pedidos de ajuda acadêmica.
 Consome API REST com autenticação JWT. Rodar: `npm run dev`.
 Fluxo transacional: criar→aceitar→concluir pedidos.
+
+
+LINKS DO DEPLOY: 
+Backend: https://lumen-backend-sbgl.onrender.com
+Frontend: https://vercel.com/dev-mariabs-projects/web-2025-2-lumen-colares-pinho-frontend/4rHNiRJsRAco2kywrGwtzwRaPhVK
