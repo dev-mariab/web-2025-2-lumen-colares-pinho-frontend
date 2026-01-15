@@ -9,6 +9,7 @@ import NavBar from "./components/NavBar";
 import Bus from "./pages/Bus";
 import Noticias from "./pages/Noticias";
 import CreatePostPage from "./pages/CreatePostPage";
+import PedidosAjuda from "./pages/PedidosAjuda";
 
 export default function App() {
   const location = useLocation();
@@ -25,11 +26,12 @@ export default function App() {
         <Route path="/registrar" element={<Register />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/post/:id" element={<PostDetails />} />
-        <Route path="/user/:id" element={<UserProfile />} />
+        <Route path="/perfil/:id" element={<UserProfile />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/bus" element={<Bus />} />
         <Route path="/noticias" element={<Noticias />} />
         <Route path="/criar-post" element={<CreatePostPage />} />
+        <Route path="/pedidos-ajuda" element={<PedidosAjuda />} />
       </Routes>
     </>
   );

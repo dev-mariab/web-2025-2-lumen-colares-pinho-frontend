@@ -29,15 +29,21 @@ const NavBar = () => {
         <Link to="/feed" className="nav-item">
           Feed
         </Link>
+
         <Link to="/dashboard" className="nav-item">
           Dashboard
         </Link>
 
+        <Link to="/pedidos-ajuda" className="nav-item">
+          Pedidos
+        </Link>
+
         {usuario && (
           <>
-            <Link to={`/user/${usuario.id}`} className="nav-item">
+            <Link to={`/perfil/${usuario.id}`} className="nav-item">
               Perfil
             </Link>
+
             <button onClick={handleLogout} className="nav-logout">
               Sair
             </button>
