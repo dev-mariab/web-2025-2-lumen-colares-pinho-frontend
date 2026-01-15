@@ -42,5 +42,9 @@ yarn dev
 
 Depois:
 
-Acesse http://localhost:5173 ou pressione Ctrl + Click no link.
+Acesse http://localhost:5174 ou pressione Ctrl + Click no link.
 
+Aplicação React para rede social universitária.
+Interface com feed de posts, sistema de comentários, upload de imagens e fluxo completo de pedidos de ajuda acadêmica.
+Consome API REST com autenticação JWT. Rodar: `npm run dev`.
+Fluxo transacional: criar→aceitar→concluir pedidos.
