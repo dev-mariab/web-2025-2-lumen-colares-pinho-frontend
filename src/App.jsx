@@ -29,7 +29,6 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/bus" element={<Bus />} />
         <Route path="/noticias" element={<Noticias />} />
-        {/* NOVA ROTA */}
         <Route path="/criar-post" element={<CreatePostPage />} />
       </Routes>
     </>

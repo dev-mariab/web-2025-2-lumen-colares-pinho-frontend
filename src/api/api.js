@@ -12,7 +12,7 @@ const getAuthHeaders = () => {
 
 // Login (já existe)
 export async function login({ email, senha }) {
-  const res = await fetch(`${API_URL}/auth/login`, {
+  const res = await fetch(`${API_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, senha })
@@ -36,7 +36,7 @@ export async function login({ email, senha }) {
 // Testar conexão (já existe)
 export async function testarConexao() {
   try {
-    const res = await fetch(`${API_URL}/health`);
+    const res = await fetch(`${API_URL}/api/health`);
     if (!res.ok) throw new Error("Backend offline");
     return await res.json();
   } catch (error) {

@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from "react";
-import { getPosts, createPost } from "../api/feedService";
-import { curtirPost } from "../api/comentarioService";
-import { getUsers } from "../api/userService";
+import React, { useState, useEffect, useRef } from "react";
+import { getPosts, createPost, curtirPost } from "../api/feedService";
 import { useNavigate } from "react-router-dom";
+import { getUsers } from "../api/userService";
+import { getComentarios, addComentario } from "../api/feedService";
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -16,6 +16,10 @@ const Feed = () => {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
   const [usuarioLogado, setUsuarioLogado] = useState(null);
+
+  const [comentariosAbertos, setComentariosAbertos] = useState({});
+  const [comentariosCarregando, setComentariosCarregando] = useState({});
+  const [comentariosPorPost, setComentariosPorPost] = useState({});
 
   // Chave para salvar posts no localStorage
   const POSTS_STORAGE_KEY = "lumen_posts_com_imagens";
@@ -169,17 +173,65 @@ const Feed = () => {
     }
   }, []);
 
+  // NOVAS FUNÇÕES PARA COMENTÁRIOS
+
+  // Função para carregar comentários de um post
+  const carregarComentarios = async (postId) => {
+    try {
+      setComentariosCarregando((prev) => ({ ...prev, [postId]: true }));
+      const comentariosData = await getComentarios(postId);
+
+      setComentariosPorPost((prev) => ({
+        ...prev,
+        [postId]: comentariosData,
+      }));
+    } catch (error) {
+      console.error("Erro ao carregar comentários:", error);
+    } finally {
+      setComentariosCarregando((prev) => ({ ...prev, [postId]: false }));
+    }
+  };
+
+  // Função para alternar visibilidade dos comentários
+  const toggleComentarios = (postId) => {
+    setComentariosAbertos((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+
+    // Se estiver abrindo e não tiver comentários carregados, carregar
+    if (!comentariosAbertos[postId] && !comentariosPorPost[postId]) {
+      carregarComentarios(postId);
+    }
+  };
+
   const handleCurtir = async (postId) => {
     try {
-      await curtirPost(postId);
-      const novosPosts = posts.map((post) =>
-        post.id === postId ? { ...post, likes: (post.likes || 0) + 1 } : post
-      );
-      setPosts(novosPosts);
-      salvarPostsNoStorage(novosPosts);
+      const resultado = await curtirPost(postId);
+
+      // Verificar se a curtida foi bem sucedida
+      if (resultado.sucesso) {
+        // Atualizar o post com o número atualizado de curtidas
+        const novosPosts = posts.map((post) => {
+          if (post.id === postId) {
+            const novasCurtidas = resultado.curtidas || (post.likes || 0) + 1;
+            return {
+              ...post,
+              likes: novasCurtidas,
+              curtidas: novasCurtidas,
+            };
+          }
+          return post;
+        });
+
+        setPosts(novosPosts);
+        salvarPostsNoStorage(novosPosts);
+      } else {
+        throw new Error(resultado.mensagem || "Erro ao curtir post");
+      }
     } catch (error) {
       console.error("Erro ao curtir:", error);
-      alert("Erro ao curtir o post.");
+      alert(error.message || "Erro ao curtir o post.");
     }
   };
 
@@ -347,6 +399,319 @@ const Feed = () => {
       (img) => img && typeof img === "string" && img.trim() !== ""
     );
   };
+
+  // Componente para exibir seção de comentários
+  // NO Feed.jsx, substitua TODO o ComentariosSection por esta versão:
+
+  // Componente para exibir seção de comentários - VERSÃO CORRIGIDA
+  const ComentariosSection = React.memo(
+    ({ postId }) => {
+      const comentarios = comentariosPorPost[postId] || [];
+      const [comentarioTexto, setComentarioTexto] = useState("");
+      const textareaRef = useRef(null);
+
+      // Focar no textarea quando o componente montar
+      useEffect(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+        }
+      }, []);
+
+      const handleComentarioChange = (e) => {
+        setComentarioTexto(e.target.value);
+      };
+
+      const handleSubmitComentario = async () => {
+        const texto = comentarioTexto.trim();
+        if (!texto) return;
+
+        try {
+          const resultado = await addComentario(postId, texto);
+
+          if (resultado.sucesso) {
+            // Atualizar lista de comentários
+            setComentariosPorPost((prev) => ({
+              ...prev,
+              [postId]: [resultado.dados, ...(prev[postId] || [])],
+            }));
+
+            // Atualizar contador de comentários no post
+            const novosPosts = posts.map((post) => {
+              if (post.id === postId) {
+                return {
+                  ...post,
+                  comments: (post.comments || 0) + 1,
+                };
+              }
+              return post;
+            });
+
+            setPosts(novosPosts);
+            salvarPostsNoStorage(novosPosts);
+
+            // Limpar campo de comentário
+            setComentarioTexto("");
+
+            // Focar novamente no textarea
+            if (textareaRef.current) {
+              textareaRef.current.focus();
+            }
+          }
+        } catch (error) {
+          console.error("Erro ao adicionar comentário:", error);
+          alert(error.message || "Erro ao adicionar comentário.");
+        }
+      };
+
+      const handleKeyDown = (e) => {
+        // Enter sem Shift envia o comentário
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          handleSubmitComentario();
+        }
+        // Esc limpa o campo
+        if (e.key === "Escape") {
+          setComentarioTexto("");
+        }
+      };
+
+      return (
+        <div
+          style={{
+            marginTop: "15px",
+            paddingTop: "15px",
+            borderTop: "1px solid #1d2633",
+          }}
+        >
+          {/* Formulário para novo comentário */}
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              marginBottom: "15px",
+            }}
+          >
+            <img
+              src={
+                usuarioLogado?.avatar_url ||
+                usuarioLogado?.avatar ||
+                `https://i.pravatar.cc/150?u=${usuarioLogado?.id || "user"}`
+              }
+              alt="Seu avatar"
+              style={{
+                width: "35px",
+                height: "35px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: "1px solid var(--primary)",
+              }}
+            />
+            <div style={{ flex: 1 }}>
+              <textarea
+                ref={textareaRef}
+                placeholder="Escreva um comentário..."
+                value={comentarioTexto}
+                onChange={handleComentarioChange}
+                onKeyDown={handleKeyDown}
+                style={{
+                  width: "95%",
+                  background: "#0a1118",
+                  border: "1px solid #1d2633",
+                  borderRadius: "8px",
+                  color: "white",
+                  padding: "8px 12px",
+                  fontSize: "14px",
+                  resize: "vertical",
+                  minHeight: "40px",
+                  maxHeight: "100px",
+                  fontFamily: "inherit",
+                  lineHeight: "1.4",
+                }}
+                rows="2"
+              />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: "5px",
+                }}
+              >
+                <div style={{ fontSize: "11px", color: "#8b949e" }}>
+                  {comentarioTexto.length}/500
+                </div>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={() => setComentarioTexto("")}
+                    style={{
+                      background: "none",
+                      border: "1px solid #1d2633",
+                      color: "#8b949e",
+                      padding: "4px 12px",
+                      borderRadius: "6px",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Limpar
+                  </button>
+                  <button
+                    onClick={handleSubmitComentario}
+                    style={{
+                      background: "var(--primary)",
+                      border: "none",
+                      color: "white",
+                      padding: "4px 15px",
+                      borderRadius: "6px",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                      opacity: comentarioTexto.trim() ? 1 : 0.5,
+                    }}
+                    disabled={!comentarioTexto.trim()}
+                  >
+                    Enviar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lista de comentários */}
+          {comentariosCarregando[postId] ? (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "20px",
+                color: "#8b949e",
+              }}
+            >
+              <div
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  border: "2px solid var(--primary)",
+                  borderTopColor: "transparent",
+                  borderRadius: "50%",
+                  animation: "spin 1s linear infinite",
+                  margin: "0 auto 10px",
+                }}
+              ></div>
+              Carregando comentários...
+            </div>
+          ) : comentarios.length === 0 ? (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "15px",
+                color: "#8b949e",
+                fontSize: "13px",
+                background: "rgba(255,255,255,0.02)",
+                borderRadius: "8px",
+                border: "1px dashed #1d2633",
+              }}
+            >
+              ✨ Seja o primeiro a comentar!
+            </div>
+          ) : (
+            <div
+              style={{
+                maxHeight: "400px",
+                overflowY: "auto",
+                paddingRight: "10px",
+              }}
+            >
+              {comentarios.map((comentario) => (
+                <div
+                  key={comentario.id}
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    marginBottom: "15px",
+                    paddingBottom: "15px",
+                    borderBottom: "1px solid rgba(29, 38, 51, 0.3)",
+                  }}
+                >
+                  <img
+                    src={
+                      comentario.autor?.avatar ||
+                      `https://i.pravatar.cc/150?u=${
+                        comentario.autor?.id || "user"
+                      }`
+                    }
+                    alt="Avatar"
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      flexShrink: 0,
+                    }}
+                    onClick={() => navigate(`/perfil/${comentario.autor?.id}`)}
+                    title={`Ver perfil de ${comentario.autor?.nome}`}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <div>
+                        <strong
+                          style={{
+                            color: "white",
+                            fontSize: "13px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() =>
+                            navigate(`/perfil/${comentario.autor?.id}`)
+                          }
+                        >
+                          {comentario.autor?.nome ||
+                            comentario.autor?.name ||
+                            "Usuário"}
+                        </strong>
+                        <span
+                          style={{
+                            color: "#8b949e",
+                            fontSize: "11px",
+                            marginLeft: "8px",
+                          }}
+                        >
+                          {formatarData(comentario.data)}
+                        </span>
+                      </div>
+                    </div>
+                    <p
+                      style={{
+                        color: "#e6edf3",
+                        fontSize: "13px",
+                        marginTop: "5px",
+                        lineHeight: "1.5",
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {comentario.conteudo}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    },
+    (prevProps, nextProps) => {
+      // Otimização de performance
+      return (
+        prevProps.postId === nextProps.postId &&
+        prevProps.comentariosPorPost[prevProps.postId] ===
+          nextProps.comentariosPorPost[nextProps.postId]
+      );
+    }
+  );
 
   if (carregando) {
     return (
@@ -930,6 +1295,7 @@ const Feed = () => {
                   </button>
                   <button
                     className="feed-action"
+                    onClick={() => toggleComentarios(post.id)}
                     style={{
                       background: "none",
                       border: "none",
@@ -943,7 +1309,6 @@ const Feed = () => {
                       borderRadius: "4px",
                       transition: "all 0.2s",
                     }}
-                    onClick={() => alert("Comentários em desenvolvimento")}
                     onMouseOver={(e) =>
                       (e.target.style.background = "rgba(255,255,255,0.05)")
                     }
@@ -951,31 +1316,12 @@ const Feed = () => {
                   >
                     💬 Comentários ({post.comments || 0})
                   </button>
-                  <button
-                    className="feed-action"
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#8b949e",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "5px",
-                      fontSize: "14px",
-                      padding: "5px 10px",
-                      borderRadius: "4px",
-                      transition: "all 0.2s",
-                      marginLeft: "auto",
-                    }}
-                    onClick={() => alert("Compartilhar em desenvolvimento")}
-                    onMouseOver={(e) =>
-                      (e.target.style.background = "rgba(255,255,255,0.05)")
-                    }
-                    onMouseOut={(e) => (e.target.style.background = "none")}
-                  >
-                    🔗 Compartilhar
-                  </button>
                 </div>
+
+                {/* SEÇÃO DE COMENTÁRIOS (aparece quando aberta) */}
+                {comentariosAbertos[post.id] && (
+                  <ComentariosSection postId={post.id} />
+                )}
               </div>
             );
           })
@@ -1084,29 +1430,6 @@ const Feed = () => {
           )}
         </div>
       </div>
-
-      {/* Botão para carregar mais */}
-      {posts.length > 0 && (
-        <div style={{ textAlign: "center", marginTop: "30px" }}>
-          <button
-            onClick={carregarFeed}
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid #1d2633",
-              color: "#8b949e",
-              padding: "10px 20px",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "14px",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            🔄 Atualizar feed
-          </button>
-        </div>
-      )}
 
       <style>{`
         @keyframes spin {
